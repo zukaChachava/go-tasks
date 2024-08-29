@@ -1,0 +1,5 @@
+﻿package task
+
+func main() {
+
+}
