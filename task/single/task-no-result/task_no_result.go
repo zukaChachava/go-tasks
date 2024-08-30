@@ -1,4 +1,4 @@
-﻿package task_no_error
+﻿package task_no_result
 
 import "sync"
 
