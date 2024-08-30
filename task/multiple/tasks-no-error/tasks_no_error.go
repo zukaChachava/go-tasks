@@ -7,7 +7,9 @@ type Tasks struct {
 }
 
 func NewTasks() *Tasks {
-	return &Tasks{}
+	return &Tasks{
+		tasks: make([]func(), 0, 4),
+	}
 }
 
 func (tasks *Tasks) Add(task func()) {

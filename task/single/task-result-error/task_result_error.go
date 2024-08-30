@@ -20,7 +20,7 @@ func (task *TaskResultErr[T, TErr]) Run() *TaskResult[T, TErr] {
 	go func(channel chan tupleWrapper[T, TErr], wg *sync.WaitGroup) {
 		defer wg.Done()
 		result, err := task.task()
-		channel <- tupleWrapper[T, TErr]{result: &result, err: &err}
+		channel <- tupleWrapper[T, TErr]{result: &result, err: err}
 	}(channel, &wg)
 
 	return &TaskResult[T, TErr]{
@@ -34,14 +34,13 @@ type TaskResult[T any, TErr error] struct {
 	channel chan tupleWrapper[T, TErr]
 }
 
-func (task *TaskResult[T, TErr]) Wait() (*T, *TErr) {
+func (task *TaskResult[T, TErr]) Wait() (*T, TErr) {
 	task.wait.Wait()
 	data := <-task.channel
 	return data.result, data.err
 }
 
-// ToDo: Research about passing interfaces as a pointer
 type tupleWrapper[T any, TErr error] struct {
 	result *T
-	err    *TErr
+	err    TErr
 }
