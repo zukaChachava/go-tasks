@@ -14,29 +14,29 @@ func NewTask[TErr error](task func() TErr) *TaskErr[TErr] {
 	}
 }
 
-func (task *TaskErr[TErr]) Run() *TaskResult[TErr] {
+func (task *TaskErr[TErr]) Run() *Result[TErr] {
 	channel := make(chan TErr, 1)
 	wg := sync.WaitGroup{}
 
 	wg.Add(1)
-	go func(channel chan TErr, wg *sync.WaitGroup) {
+	go func(wg *sync.WaitGroup, channel chan TErr, task func() TErr) {
 		defer wg.Done()
-		err := task.task()
+		err := task()
 		channel <- err
-	}(channel, &wg)
+	}(&wg, channel, task.task)
 
-	return &TaskResult[TErr]{
+	return &Result[TErr]{
 		wait:    &wg,
 		channel: channel,
 	}
 }
 
-type TaskResult[TErr error] struct {
+type Result[TErr error] struct {
 	wait    *sync.WaitGroup
 	channel chan TErr
 }
 
-func (task *TaskResult[TErr]) Wait() TErr {
-	task.wait.Wait()
-	return <-task.channel
+func (result *Result[TErr]) Wait() TErr {
+	result.wait.Wait()
+	return <-result.channel
 }

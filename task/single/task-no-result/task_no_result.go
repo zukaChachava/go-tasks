@@ -12,24 +12,24 @@ func NewTask(task func()) *Task {
 	}
 }
 
-func (task *Task) Run() *TaskResult {
+func (task *Task) Run() *Result {
 	wg := sync.WaitGroup{}
 
 	wg.Add(1)
-	go func(wg *sync.WaitGroup) {
+	go func(wg *sync.WaitGroup, task func()) {
 		defer wg.Done()
-		task.task()
-	}(&wg)
+		task()
+	}(&wg, task.task)
 
-	return &TaskResult{
+	return &Result{
 		wait: &wg,
 	}
 }
 
-type TaskResult struct {
+type Result struct {
 	wait *sync.WaitGroup
 }
 
-func (task *TaskResult) Wait() {
-	task.wait.Wait()
+func (result *Result) Wait() {
+	result.wait.Wait()
 }

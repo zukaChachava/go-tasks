@@ -6,7 +6,7 @@ type TasksResultError[T any, TErr error] struct {
 	tasks []func() (T, TErr)
 }
 
-func NewTasksResultError[T any, TErr error]() *TasksResultError[T, TErr] {
+func NewTasks[T any, TErr error]() *TasksResultError[T, TErr] {
 	return &TasksResultError[T, TErr]{
 		tasks: make([]func() (T, TErr), 0, 4),
 	}
@@ -17,7 +17,7 @@ func (tasks *TasksResultError[T, TErr]) Add(task func() (T, TErr)) *TasksResultE
 	return tasks
 }
 
-func (tasks *TasksResultError[T, TErr]) Run() *TasksResult[T, TErr] {
+func (tasks *TasksResultError[T, TErr]) Run() *Result[T, TErr] {
 	wg := sync.WaitGroup{}
 	channel := make(chan tupleWrapper[T, TErr], len(tasks.tasks))
 
@@ -30,20 +30,20 @@ func (tasks *TasksResultError[T, TErr]) Run() *TasksResult[T, TErr] {
 		}(&wg, channel, task)
 	}
 
-	return &TasksResult[T, TErr]{size: len(tasks.tasks), wg: &wg, channel: channel}
+	return &Result[T, TErr]{size: len(tasks.tasks), wg: &wg, channel: channel}
 }
 
-type TasksResult[T any, TErr error] struct {
+type Result[T any, TErr error] struct {
 	size    int
 	wg      *sync.WaitGroup
 	channel chan tupleWrapper[T, TErr]
 }
 
-func (tasks *TasksResult[T, TErr]) Wait() []ResultTuple[T, TErr] {
-	tasks.wg.Wait()
-	data := make([]ResultTuple[T, TErr], tasks.size)
+func (result *Result[T, TErr]) Wait() []ResultTuple[T, TErr] {
+	result.wg.Wait()
+	data := make([]ResultTuple[T, TErr], result.size)
 
-	for result := range tasks.channel {
+	for result := range result.channel {
 		data[result.index] = ResultTuple[T, TErr]{Value: result.value, Err: result.err}
 	}
 

@@ -16,28 +16,27 @@ func (tasks *Tasks) Add(task func()) {
 	tasks.tasks = append(tasks.tasks, task)
 }
 
-func (tasks *Tasks) Run() *TasksResult {
+func (tasks *Tasks) Run() *Result {
 	wg := sync.WaitGroup{}
 
 	for _, task := range tasks.tasks {
 		wg.Add(1)
-
-		go func(wg *sync.WaitGroup) {
+		go func(wg *sync.WaitGroup, task func()) {
 			defer wg.Done()
 			task()
-		}(&wg)
+		}(&wg, task)
 	}
 
 	clear(tasks.tasks)
-	return &TasksResult{
+	return &Result{
 		wg: &wg,
 	}
 }
 
-type TasksResult struct {
+type Result struct {
 	wg *sync.WaitGroup
 }
 
-func (tasksResult *TasksResult) Wait() {
-	tasksResult.wg.Wait()
+func (result *Result) Wait() {
+	result.wg.Wait()
 }

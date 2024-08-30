@@ -12,31 +12,31 @@ func NewTask[T any, TErr error](task func() (T, TErr)) *TaskResultErr[T, TErr] {
 	}
 }
 
-func (task *TaskResultErr[T, TErr]) Run() *TaskResult[T, TErr] {
+func (task *TaskResultErr[T, TErr]) Run() *Result[T, TErr] {
 	channel := make(chan tupleWrapper[T, TErr], 1)
 	wg := sync.WaitGroup{}
 
 	wg.Add(1)
-	go func(channel chan tupleWrapper[T, TErr], wg *sync.WaitGroup) {
+	go func(wg *sync.WaitGroup, channel chan tupleWrapper[T, TErr], task func() (T, TErr)) {
 		defer wg.Done()
-		result, err := task.task()
+		result, err := task()
 		channel <- tupleWrapper[T, TErr]{result: &result, err: err}
-	}(channel, &wg)
+	}(&wg, channel, task.task)
 
-	return &TaskResult[T, TErr]{
+	return &Result[T, TErr]{
 		wait:    &wg,
 		channel: channel,
 	}
 }
 
-type TaskResult[T any, TErr error] struct {
+type Result[T any, TErr error] struct {
 	wait    *sync.WaitGroup
 	channel chan tupleWrapper[T, TErr]
 }
 
-func (task *TaskResult[T, TErr]) Wait() (*T, TErr) {
-	task.wait.Wait()
-	data := <-task.channel
+func (result *Result[T, TErr]) Wait() (*T, TErr) {
+	result.wait.Wait()
+	data := <-result.channel
 	return data.result, data.err
 }
 
