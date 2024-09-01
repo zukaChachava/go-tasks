@@ -21,8 +21,8 @@ func Test_RunWithResultError(t *testing.T) {
 	duration := time.Since(currentTime)
 
 	num := 0
-	for result := range results {
-		if num != result {
+	for _, result := range results {
+		if num != result.Err {
 			t.Fatal("Invalid result")
 		}
 		num++

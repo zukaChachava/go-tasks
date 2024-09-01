@@ -8,12 +8,12 @@ import (
 )
 
 func Test_RunWithError_ReturnsError(t *testing.T) {
-	result := task.NewTask[error](func() error {
+	err := task.NewTask[error](func() error {
 		time.Sleep(1 * time.Second)
 		return errors.New("test error")
 	}).Run().Wait()
 
-	if result == nil {
+	if err == nil {
 		t.Fatal("Invalid result")
 	}
 }
