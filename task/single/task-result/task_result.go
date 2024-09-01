@@ -14,6 +14,7 @@ func (task *TaskResult[T]) Run() *Result[T] {
 	wg := sync.WaitGroup{}
 	channel := make(chan T, 1)
 
+	wg.Add(1)
 	go func(wg *sync.WaitGroup, channel chan T, task func() T) {
 		defer wg.Done()
 		result := task()
