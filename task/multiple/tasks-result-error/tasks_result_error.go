@@ -43,8 +43,9 @@ func (result *Result[T, TErr]) Wait() []ResultTuple[T, TErr] {
 	result.wg.Wait()
 	data := make([]ResultTuple[T, TErr], result.size)
 
-	for result := range result.channel {
-		data[result.index] = ResultTuple[T, TErr]{Value: result.value, Err: result.err}
+	for i := 0; i < result.size; i++ {
+		value := <-result.channel
+		data[value.index] = ResultTuple[T, TErr]{Value: value.value, Err: value.err}
 	}
 
 	return data

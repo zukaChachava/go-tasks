@@ -46,8 +46,9 @@ func (result *Result[TErr]) Wait() []TErr {
 	result.wg.Wait()
 	results := make([]TErr, result.size)
 
-	for data := range result.channel {
-		results[data.index] = data.err
+	for i := 0; i < result.size; i++ {
+		value := <-result.channel
+		results[value.index] = value.err
 	}
 
 	return results

@@ -1,6 +1,8 @@
 ﻿package tasks_result
 
-import "sync"
+import (
+	"sync"
+)
 
 type TasksResult[T any] struct {
 	tasks []func() T
@@ -48,8 +50,8 @@ func (result *Result[T]) Wait() []T {
 	result.wg.Wait()
 	data := make([]T, result.size)
 
-	for value := range result.channel {
-		// ToDo: Are data copied to the list ?
+	for i := 0; i < result.size; i++ {
+		value := <-result.channel
 		data[value.index] = *value.value
 	}
 
