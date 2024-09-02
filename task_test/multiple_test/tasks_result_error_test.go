@@ -22,7 +22,7 @@ func Test_RunWithResultError(t *testing.T) {
 
 	num := 0
 	for _, result := range results {
-		if num != result.Err {
+		if nil != result.Err {
 			t.Fatal("Invalid result")
 		}
 		num++

@@ -24,12 +24,11 @@ func Test_RunWithErrors_ReturnsNil(t *testing.T) {
 		t.Fatal("Invalid return quantity")
 	}
 
-	// ToDo: Research this
-	//for _, result := range results {
-	//	if result.Error != nil {
-	//		t.Fatal("Invalid result")
-	//	}
-	//}
+	for _, result := range results {
+		if result != nil {
+			t.Fatal("Invalid result")
+		}
+	}
 
 	if duration > time.Second*2 {
 		t.Fatal("Not running concurrently")
