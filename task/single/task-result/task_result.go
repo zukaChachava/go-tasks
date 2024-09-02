@@ -12,13 +12,13 @@ func NewTask[T any](task func() T) *TaskResult[T] {
 
 func (task *TaskResult[T]) Run() *Result[T] {
 	wg := sync.WaitGroup{}
-	channel := make(chan T, 1)
+	channel := make(chan *T, 1)
 
 	wg.Add(1)
-	go func(wg *sync.WaitGroup, channel chan T, task func() T) {
+	go func(wg *sync.WaitGroup, channel chan *T, task func() T) {
 		defer wg.Done()
 		result := task()
-		channel <- result
+		channel <- &result
 	}(&wg, channel, task.task)
 
 	return &Result[T]{
@@ -29,11 +29,11 @@ func (task *TaskResult[T]) Run() *Result[T] {
 
 type Result[T any] struct {
 	wait    *sync.WaitGroup
-	channel chan T
+	channel chan *T
 }
 
 func (result *Result[T]) Wait() *T {
 	result.wait.Wait()
 	data := <-result.channel
-	return &data
+	return data
 }
