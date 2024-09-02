@@ -28,7 +28,6 @@ func (tasks *TasksResult[T]) Run() *Result[T] {
 		go func(wg *sync.WaitGroup, channel chan tupleWrapper[T], task func() T) {
 			defer wg.Done()
 			result := task()
-			// ToDo: are data copied to the channel ?
 			channel <- tupleWrapper[T]{index: index, value: &result}
 		}(&wg, channel, task)
 	}
