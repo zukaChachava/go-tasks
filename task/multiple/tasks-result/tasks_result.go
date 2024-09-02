@@ -46,13 +46,13 @@ type Result[T any] struct {
 	size    int
 }
 
-func (result *Result[T]) Wait() []T {
+func (result *Result[T]) Wait() []*T {
 	result.wg.Wait()
-	data := make([]T, result.size)
+	data := make([]*T, result.size)
 
 	for i := 0; i < result.size; i++ {
 		value := <-result.channel
-		data[value.index] = *value.value
+		data[value.index] = value.value
 	}
 
 	return data

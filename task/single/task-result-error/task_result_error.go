@@ -13,8 +13,8 @@ func NewTask[T any, TErr error](task func() (T, TErr)) *TaskResultErr[T, TErr] {
 }
 
 func (task *TaskResultErr[T, TErr]) Run() *Result[T, TErr] {
-	channel := make(chan tupleWrapper[T, TErr], 1)
 	wg := sync.WaitGroup{}
+	channel := make(chan tupleWrapper[T, TErr], 1)
 
 	wg.Add(1)
 	go func(wg *sync.WaitGroup, channel chan tupleWrapper[T, TErr], task func() (T, TErr)) {
