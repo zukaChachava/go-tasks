@@ -1,30 +1,36 @@
 # GO Tasks
 
-This package helps write goroutines at ease. No need
-to write external channels or waitgroups. Just focus
-on the functionality. All the complexity is abstracted
-away from devs.
+The GO Tasks package simplifies working with goroutines by 
+abstracting away the complexity of external channels and wait groups.
+Focus on the functionality of your tasks, while the package handles the 
+concurrency for you. 
+It supports both single and multiple tasks with four types of execution:
 
-The package supports executing single task as well
-as executing multiple ones at the same time.
-
-Both versions supports 4 types of execution:
-
-* a task (tasks) without result
-* a task (tasks) with a result
-* a task (tasks) with a possible error
-* a task (tasks) with a result and possible error
+1. Tasks without results
+2. Tasks with results
+3. Tasks with possible errors
+4. Tasks with results and possible errors
 ---
 
-### Examples
+## Installation
+To add the GO Tasks package to your Go module, run:
 
-- A task without result
+```sh
+go get github.com/zukaChachava/task
+````
+
+## Usage
+
+### Task Without Result
+
+For tasks that do not return a result:
+
 ```go
 package main
 
 import (
 	task "github.com/zukaChachava/task/task/single/task-no-result"
-    "time"
+	"time"
 )
 
 func main() {
@@ -32,16 +38,18 @@ func main() {
 		time.Sleep(1 * time.Second)
 	}).Run().Wait()
 }
-
 ```
 
-- Tasks without result
+### Multiple Tasks Without Result
+
+For running multiple tasks that do not return results:
+
 ```go
 package main
 
 import (
 	tasks "github.com/zukaChachava/task/task/multiple/tasks-no-result"
-    "time"
+	"time"
 )
 
 func main() {
@@ -52,18 +60,22 @@ func main() {
 			time.Sleep(1 * time.Second)
 		})
 	}
-	
+
 	tasksContainer.Run().Wait()
+}
 ```
 
-- A task with result 
+### Task With Result
+
+For a task that returns a result:
+
 ```go
 package main
 
 import (
 	task "github.com/zukaChachava/task/task/single/task-result"
-	"testing"
 	"time"
+	"fmt"
 )
 
 func main() {
@@ -71,10 +83,16 @@ func main() {
 		time.Sleep(1 * time.Second)
 		return 10
 	}).Run().Wait()
+
+	// Use the result as needed
+	fmt.Println(result)
 }
 ```
 
-- Tasks with result
+### Multiple Tasks With Results
+
+For multiple tasks that return results:
+
 ```go
 package main
 
@@ -96,20 +114,22 @@ func main() {
 
 	results := tasksContainer.Run().Wait()
 
-	for result := range results {
-		fmt.Println(*result)
+	for _, result := range results {
+		fmt.Println(result)
 	}
 }
 ```
+### Task With Error
 
-- A task with error
+For a task that may return an error:
+
 ```go
 package main
 
 import (
 	"errors"
 	task "github.com/zukaChachava/task/task/single/task-error"
-    "time"
+	"time"
 )
 
 func main() {
@@ -119,18 +139,20 @@ func main() {
 	}).Run().Wait()
 
 	if err != nil {
-		panic("რაცხა არაა კაი ამბავი")
+		panic("An error occurred: " + err.Error())
 	}
 }
 ```
+### Multiple Tasks With Errors
 
-- Tasks with error
+For multiple tasks that may return errors:
+
 ```go
 package main
 
 import (
 	tasks "github.com/zukaChachava/task/task/multiple/tasks-error"
-    "time"
+	"time"
 )
 
 func main() {
@@ -142,28 +164,44 @@ func main() {
 			return nil
 		})
 	}
+
 	results := taskContainer.Run().Wait()
+
+	// Handle errors if needed
 }
 ```
 
-- A task with result and error
+### Task With Result and Error
+
+For a task that returns a result and may also return an error:
+
 ```go
 package main
 
 import (
-	task "github.com/zukaChachava/task/task/single/task-result"
+	task "github.com/zukaChachava/task/task/single/task-result-error"
 	"time"
+	"fmt"
 )
 
 func main() {
-	result := task.NewTask[int](func() int {
+	result, err := task.NewTask[int, error](func() (int, error) {
 		time.Sleep(1 * time.Second)
-		return 10
+		return 10, nil
 	}).Run().Wait()
+
+	if err != nil {
+		panic("An error occurred: " + err.Error())
+	}
+
+	// Use the result as needed
+	fmt.Println(result)
 }
 ```
 
-- Tasks with result and error
+### Multiple Tasks With Results and Errors
+
+For multiple tasks that return results and may also return errors:
 
 ```go
 package main
@@ -187,8 +225,18 @@ func main() {
 	results := tasksContainer.Run().Wait()
 
 	for _, result := range results {
-		fmt.Println(*result)
+		if result.Error != nil {
+			fmt.Println("Error:", result.Error)
+		} else {
+			fmt.Println(result.Value)
+		}
 	}
 }
-
 ```
+
+## Conclusion
+The GO Tasks package provides a streamlined approach to managing goroutines with various execution scenarios, making concurrency in your Go applications easier and more manageable.
+
+---
+
+Feel free to modify or add more details as needed!
